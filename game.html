@@ -1,0 +1,269 @@
+<html>
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>贪吃蛇游戏</title>
+</head>
+<script type="text/javascript">
+//变量定义
+var MapData = new Array();
+var curX = 0;
+var curY = 0;
+var oldX = 0;
+var oldY = 0;
+var maxX = 50;
+var maxY = 50;
+
+//蛇行走速度
+var speed = 200;
+
+//行走步数
+var steps = 0;
+
+//蛇身构造
+var snackPositionArray = new Array();
+var snacklenght = 10;
+var lastX = 0;
+var lastY = 0;
+
+//关卡等级
+var missionLevel = 1;
+
+//行走方向
+var moveposition = 39;//初始向右移动
+var gametimer = null;
+
+
+//游戏开始
+function GameStart()
+{
+	if (window.gametimer == null) 
+	{ 
+		window.GameLoad(); 
+		document.getElementById("statrbtn").value="停止";
+	}
+	else
+	{
+		window.location.reload(true);
+	}
+}
+
+
+//游戏初始化
+function GameLoad() {
+    window.MapData = new Array();
+
+
+    //蛇行走速度
+    speed = 200;
+
+    //行走步数
+    steps = 0;
+
+    //蛇身构造
+    window.snackPositionArray = new Array();
+    window.snacklenght = 10;
+    lastX = 0;
+    lastY = 0;
+
+    //行走方向
+    moveposition = 39;//初始向右移动
+    gametimer = null;
+
+    curX = 0;
+    curY = 0;
+    oldX = 0;
+    oldY = 0;
+    window.maxX = 50;
+    window.maxY = 50;
+    var i;
+    for (i = 0; i < window.maxX; i++) {
+        window.MapData[i] = new Array();
+        for (var j = 0; j < window.maxY; j++) {
+            window.MapData[i][j] = 0;
+        }
+    }
+    for (i = 0; i < window.snacklenght; i++) {
+        window.snackPositionArray[i] = "0|0";
+    }
+
+
+
+    document.onkeydown = keydown;
+    gametimer = setInterval(window.WhileMove, speed);
+    window.createfood();
+}
+
+
+//关卡难度
+function Mission(level) {
+    speed = Math.floor(speed / level);
+    clearInterval(window.gametimer);
+    window.gametimer = setInterval(window.WhileMove, speed);
+}
+
+//按键操作
+function keydown(e) {
+    e = e || event;
+    var currKey = e.keyCode || e.which || e.charCode;
+    if ((currKey == 37 && window.moveposition != 39) || (currKey == 38 && window.moveposition != 40) || (currKey == 39 && window.moveposition != 37) || (currKey == 40 && window.moveposition != 38)) {
+        window.moveposition = currKey;
+    }
+}
+
+//移动
+function WhileMove() {
+    if (window.moveposition >= 37 && window.moveposition <= 40) {
+        window.oldX = window.curX;
+        window.oldY = window.curY;
+
+
+        if (window.moveposition == 37) {
+            window.curX = window.curX - 1;
+        }
+        else if (window.moveposition == 38) {
+            window.curY = window.curY - 1;
+        }
+        else if (window.moveposition == 39) {
+            window.curX = window.curX + 1;
+        }
+        else if (window.moveposition == 40) {
+            window.curY = window.curY + 1;
+        }
+        Move(window.oldX, window.oldY, window.curX, window.curY);
+    }
+    window.CheckGameLife();
+}
+
+//移动坐标
+function Move(ox, xy, x, y) {
+    window.UpdateBox(ox, xy, "red");
+    window.UpdateBox(x, y, "blue");
+    window.UpdateSnackPoints(x, y);
+    window.UpdateBox(window.lastX, window.lastY, "#CDCDCD");
+    window.steps++;//行走步数+1
+}
+
+
+//随机创建食物
+function createfood() {
+    var randomX;
+    randomX = 0;
+    var randomY;
+    randomY = 0;
+    do {
+        randomX = Math.floor(Math.random() * window.maxX);
+        randomY = Math.floor(Math.random() * window.maxY);
+        window.UpdateBox(randomX, randomY, "#FF6600");
+        window.MapData[randomX][randomY] = 2;
+    }
+    while (randomX == window.curX && randomY == window.curY&&CheckSnackBody(randomX,randomY));
+
+}
+
+//检查蛇内部节点用于创建不在蛇身上的食物
+function CheckSnackBody(x,y)
+{
+	var result=true;
+	var SnackPoint=null;
+	for (var i = 0; i < window.snackPositionArray.length; i++) {
+		SnackPoint=snackPositionArray[i].split("|");
+		if(SnackPoint[0]==x&&SnackPoint[1]==y)
+		{
+			result=false;
+			break;
+		}
+    }
+	return result;
+}
+
+//更新蛇的内部节点
+function UpdateSnackPoints(x, y) {
+    window.snackPositionArray[window.snacklenght - 1] = x + "|" + y;
+    for (var i = 0; i < window.snacklenght - 1; i++) {
+        window.snackPositionArray[i] = window.snackPositionArray[i + 1];
+    }
+
+    var points = window.snackPositionArray[0].split('|');
+    lastX = points[0];
+    lastY = points[1];
+}
+
+
+//更新界面及游戏数据
+function UpdateBox(x, y, color) {
+    if (color == "red") {
+        window.MapData[x][y] = 1;
+    }
+    else if (color == "#CDCDCD") {
+        window.MapData[x][y] = 0;
+    }
+	var AllPoints=document.getElementsByTagName("td");
+	for(var i=0;i<AllPoints.length;i++)
+	{
+		if(AllPoints[i].getAttribute("x")==x&&AllPoints[i].getAttribute("y")==y)
+		{
+			AllPoints[i].style.backgroundColor=color;
+		}
+	}
+	document.getElementById("content").innerText='[当前关卡：' + window.missionLevel + '][当前速度：' + "步/" + speed / 1000 + "s" + '][当前坐标：' + "(" + window.curX + "," + window.curY + ")" + ']';
+}
+
+
+
+
+
+//检查碰撞及吃食物
+function CheckGameLife() {
+	//检测边界碰撞
+    if (window.curX*1 < 0 || window.curY*1 < 0 || window.curX*1 >= window.maxX*1 || window.curY*1 >= window.maxY*1) {	 
+		clearInterval(window.gametimer);
+		alert("蛇撞墙上了，游戏失败！");
+        window.location.reload(true);
+        return;
+    }
+	//检测自身碰撞
+	if (window.MapData[window.curX][window.curY] == 1) {
+		clearInterval(window.gametimer);
+        alert("蛇撞自己身上了，游戏失败！");
+        window.location.reload(true);
+        return;
+    }
+	//检测食物
+    if (window.MapData[window.curX][window.curY] == 2) {
+        window.MapData[window.curX][window.curY] = 1;
+        window.UpdateBox(window.curX, window.curY, "#red");
+        window.snacklenght++;
+        window.createfood();
+        if (window.snacklenght >= window.missionLevel * 10) {
+            window.missionLevel++;
+            window.Mission(window.missionLevel);
+        }
+    }
+}
+
+</script>
+<body>
+
+<script type="text/javascript">
+	var maxX=50;
+	var maxY=50;
+	document.write("<table id='Gamebox' style='padding:0px;margin:0px;border:none;'>");
+	
+	for(var i=0;i<maxY;i++)
+	{
+		document.write("<tr style='padding:0px;margin:0px;border:none;'>");
+		
+		for(var j=0;j<maxX;j++)
+		{
+			document.write("<td x='"+j+"' y='"+i+"' style='border:none;padding:0px;margin:0px;background-color:#CDCDCD;width:10px;height:10px;'></td>");
+		}
+		document.write("</tr>");
+	}
+	
+	document.write("</table>");
+</script>
+
+<div id="content" >游戏说明：方向键操作-上-右-下-左，游戏关卡说明：第一关吃了一个食物立马进入第二关，以后每吃10个加一关。</div>
+<div id="controls"><input id="statrbtn" onclick="GameStart()" type="button" value="开始游戏"  /></div>
+</body>
+</html>
