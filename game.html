@@ -1,10 +1,10 @@
 <html>
 <head>
 <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-<title>贪吃蛇游戏</title>
+<title>Gluttonous Snake</title>
 </head>
 <script type="text/javascript">
-//变量定义
+
 var MapData = new Array();
 var curX = 0;
 var curY = 0;
@@ -12,34 +12,22 @@ var oldX = 0;
 var oldY = 0;
 var maxX = 50;
 var maxY = 50;
-
-//蛇行走速度
 var speed = 200;
-
-//行走步数
 var steps = 0;
-
-//蛇身构造
 var snackPositionArray = new Array();
 var snacklenght = 10;
 var lastX = 0;
 var lastY = 0;
-
-//关卡等级
 var missionLevel = 1;
-
-//行走方向
-var moveposition = 39;//初始向右移动
+var moveposition = 39;
 var gametimer = null;
 
-
-//游戏开始
 function GameStart()
 {
 	if (window.gametimer == null) 
 	{ 
 		window.GameLoad(); 
-		document.getElementById("statrbtn").value="停止";
+		document.getElementById("statrbtn").value="GameStop";
 	}
 	else
 	{
@@ -47,28 +35,16 @@ function GameStart()
 	}
 }
 
-
-//游戏初始化
 function GameLoad() {
     window.MapData = new Array();
-
-
-    //蛇行走速度
     speed = 200;
-
-    //行走步数
     steps = 0;
-
-    //蛇身构造
     window.snackPositionArray = new Array();
     window.snacklenght = 10;
     lastX = 0;
     lastY = 0;
-
-    //行走方向
-    moveposition = 39;//初始向右移动
+    moveposition = 39;
     gametimer = null;
-
     curX = 0;
     curY = 0;
     oldX = 0;
@@ -85,23 +61,17 @@ function GameLoad() {
     for (i = 0; i < window.snacklenght; i++) {
         window.snackPositionArray[i] = "0|0";
     }
-
-
-
     document.onkeydown = keydown;
     gametimer = setInterval(window.WhileMove, speed);
     window.createfood();
 }
 
-
-//关卡难度
 function Mission(level) {
     speed = Math.floor(speed / level);
     clearInterval(window.gametimer);
     window.gametimer = setInterval(window.WhileMove, speed);
 }
 
-//按键操作
 function keydown(e) {
     e = e || event;
     var currKey = e.keyCode || e.which || e.charCode;
@@ -110,13 +80,10 @@ function keydown(e) {
     }
 }
 
-//移动
 function WhileMove() {
     if (window.moveposition >= 37 && window.moveposition <= 40) {
         window.oldX = window.curX;
         window.oldY = window.curY;
-
-
         if (window.moveposition == 37) {
             window.curX = window.curX - 1;
         }
@@ -134,17 +101,14 @@ function WhileMove() {
     window.CheckGameLife();
 }
 
-//移动坐标
 function Move(ox, xy, x, y) {
     window.UpdateBox(ox, xy, "red");
     window.UpdateBox(x, y, "blue");
     window.UpdateSnackPoints(x, y);
     window.UpdateBox(window.lastX, window.lastY, "#CDCDCD");
-    window.steps++;//行走步数+1
+    window.steps++;
 }
 
-
-//随机创建食物
 function createfood() {
     var randomX;
     randomX = 0;
@@ -160,7 +124,6 @@ function createfood() {
 
 }
 
-//检查蛇内部节点用于创建不在蛇身上的食物
 function CheckSnackBody(x,y)
 {
 	var result=true;
@@ -176,7 +139,6 @@ function CheckSnackBody(x,y)
 	return result;
 }
 
-//更新蛇的内部节点
 function UpdateSnackPoints(x, y) {
     window.snackPositionArray[window.snacklenght - 1] = x + "|" + y;
     for (var i = 0; i < window.snacklenght - 1; i++) {
@@ -188,8 +150,6 @@ function UpdateSnackPoints(x, y) {
     lastY = points[1];
 }
 
-
-//更新界面及游戏数据
 function UpdateBox(x, y, color) {
     if (color == "red") {
         window.MapData[x][y] = 1;
@@ -205,30 +165,25 @@ function UpdateBox(x, y, color) {
 			AllPoints[i].style.backgroundColor=color;
 		}
 	}
-	document.getElementById("content").innerText='[当前关卡：' + window.missionLevel + '][当前速度：' + "步/" + speed / 1000 + "s" + '][当前坐标：' + "(" + window.curX + "," + window.curY + ")" + ']';
+	document.getElementById("content").innerText='[level:' + window.missionLevel + '][speed:' + "step/" + speed / 1000 + "s" + '][coordinates:' + "(" + window.curX + "," + window.curY + ")" + ']';
 }
 
-
-
-
-
-//检查碰撞及吃食物
 function CheckGameLife() {
-	//检测边界碰撞
+	
     if (window.curX*1 < 0 || window.curY*1 < 0 || window.curX*1 >= window.maxX*1 || window.curY*1 >= window.maxY*1) {	 
 		clearInterval(window.gametimer);
-		alert("蛇撞墙上了，游戏失败！");
+		alert("Game failed!");
         window.location.reload(true);
         return;
     }
-	//检测自身碰撞
+	
 	if (window.MapData[window.curX][window.curY] == 1) {
 		clearInterval(window.gametimer);
-        alert("蛇撞自己身上了，游戏失败！");
+        alert("Game failed!");
         window.location.reload(true);
         return;
     }
-	//检测食物
+	
     if (window.MapData[window.curX][window.curY] == 2) {
         window.MapData[window.curX][window.curY] = 1;
         window.UpdateBox(window.curX, window.curY, "#red");
@@ -263,7 +218,7 @@ function CheckGameLife() {
 	document.write("</table>");
 </script>
 
-<div id="content" >游戏说明：方向键操作-上-右-下-左，游戏关卡说明：第一关吃了一个食物立马进入第二关，以后每吃10个加一关。</div>
-<div id="controls"><input id="statrbtn" onclick="GameStart()" type="button" value="开始游戏"  /></div>
+<div id="content" ></div>
+<div id="controls"><input id="statrbtn" onclick="GameStart()" type="button" value="GameStart"  /></div>
 </body>
 </html>
