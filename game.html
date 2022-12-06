@@ -13,6 +13,7 @@ var oldY = 0;
 var maxX = 50;
 var maxY = 50;
 var speed = 200;
+var maxLevel = 10;
 var steps = 0;
 var snackPositionArray = new Array();
 var snacklenght = 10;
@@ -67,8 +68,13 @@ function GameLoad() {
 }
 
 function Mission(level) {
-    speed = Math.floor(speed / level);
     clearInterval(window.gametimer);
+    if (maxLevel > 10) {
+        alert("Game success!");
+        window.location.reload(true);
+        return;
+    }
+    speed = Math.floor(speed - 20);
     window.gametimer = setInterval(window.WhileMove, speed);
 }
 
@@ -165,14 +171,14 @@ function UpdateBox(x, y, color) {
 			AllPoints[i].style.backgroundColor=color;
 		}
 	}
-	document.getElementById("content").innerText='[level:' + window.missionLevel + '][speed:' + "step/" + speed / 1000 + "s" + '][coordinates:' + "(" + window.curX + "," + window.curY + ")" + ']';
+	document.getElementById("content").innerText='[level:' + window.missionLevel + '][speed:' + "step/" + speed / 1000 + "s" + '][length:' + window.snacklenght + '][coordinates:' + "(" + window.curX + "," + window.curY + ")" + ']';
 }
 
 function CheckGameLife() {
 	
     if (window.curX*1 < 0 || window.curY*1 < 0 || window.curX*1 >= window.maxX*1 || window.curY*1 >= window.maxY*1) {	 
-		clearInterval(window.gametimer);
-		alert("Game failed!");
+		    clearInterval(window.gametimer);
+		    alert("Game failed!");
         window.location.reload(true);
         return;
     }
@@ -189,7 +195,7 @@ function CheckGameLife() {
         window.UpdateBox(window.curX, window.curY, "#red");
         window.snacklenght++;
         window.createfood();
-        if (window.snacklenght >= window.missionLevel * 10) {
+        if (window.snacklenght % 2 == 0) {
             window.missionLevel++;
             window.Mission(window.missionLevel);
         }
